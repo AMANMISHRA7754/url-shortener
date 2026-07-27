@@ -4,11 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Url Shortener</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <input type="url" id="input-url" placeholder="Enter Url here">
-    <button id="submit">Submit</button>
-    <p id="result">shortCode</p>
+    <main class="card">
+        <p class="eyebrow">Link Tool</p>
+        <h1 class="title">Shorten a URL</h1>
+        <p class="subtitle">Paste a long link and get a short one back.</p>
+
+        <div class="field">
+            <input type="url" id="input-url" placeholder="https://example.com/your-long-link">
+            <button id="submit">Shorten</button>
+        </div>
+
+        <div class="result-row">
+            <span class="result-label">Your short link</span>
+            <p id="result"></p>
+        </div>
+    </main>
     <script src="script.js"></script>
 </body>
 </html>

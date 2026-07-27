@@ -1,16 +1,15 @@
 package com.example.urlshortner.service;
 import com.example.urlshortner.repository.UrlRepository;
-
+import com.example.urlshortner.model.Url;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.*;
-
+import java.time.LocalDateTime;
+import com.example.urlshortner.dto.AnalyticsResponse;
 @Service
 public class UrlShortenerService {
 
-    HashMap<String,String> urlMap=new HashMap<>();
-    @Autowired
-    private UrlRepository urlRepository;
+    private final UrlRepository urlRepository;
     public UrlShortenerService(UrlRepository urlRepository)
     {
         this.urlRepository=urlRepository;
@@ -31,21 +30,51 @@ public class UrlShortenerService {
         }
         return sb.toString();
     }
-    public void storeOriginalUrl(String shortCode,String OriginalUrl)
+    public void storeOriginalUrl(String shortCode,String originalUrl)
     {
-        urlMap.put(shortCode,OriginalUrl);
+        Url url=new Url();
+        url.setShortCode(shortCode);
+        url.setOriginalUrl(originalUrl);
+        LocalDateTime currentTime=LocalDateTime.now();
+        url.setCreatedAt(currentTime);
+        url.setExpiresAt(currentTime.plusHours(1));
+        url.setReservedUntil(currentTime.plusDays(2));
+        url.setClickCount(0L);
+        urlRepository.save(url);
+
     }
     public String getOriginalUrl(String shortCode)
     {
-        if(urlMap.containsKey(shortCode))
-            return urlMap.get(shortCode);
-        else 
-            return "error";//for the time being later we will properly handle exceptions
+        
+       Optional<Url> url=urlRepository.findByShortCode(shortCode);
+       if(!url.isPresent())
+        return "THE SHORTCODE IS NOT FOUND";
+       Url actualUrl=url.get();
+       LocalDateTime expirationTime=actualUrl.getExpiresAt();
+       LocalDateTime currentTime=LocalDateTime.now();
+       if(expirationTime.isAfter(currentTime))
+        {
+            actualUrl.setClickCount(actualUrl.getClickCount() + 1);
+            urlRepository.save(actualUrl);
+            return actualUrl.getOriginalUrl();
+        }
+        else
+        {
+            return "SORRY THE SHORTCODE EXPIRED";
+        }
     }
     public String createUrl(String originalUrl)
     {
         String generatedShortCode = generateShortCode();
         storeOriginalUrl(generatedShortCode, originalUrl);
         return generatedShortCode;
+    }
+
+    public AnalyticsResponse getAnalytics(String shortCode)
+    {
+        Optional<Url> containerUrl=urlRepository.findByShortCode(shortCode);
+        if(!containerUrl.isPresent())
+            throe new RuntimeException("Short Url not found");
+
     }
 }
