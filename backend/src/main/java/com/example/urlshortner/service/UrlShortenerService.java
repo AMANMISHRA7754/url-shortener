@@ -1,7 +1,6 @@
 package com.example.urlshortner.service;
 import com.example.urlshortner.repository.UrlRepository;
 import com.example.urlshortner.model.Url;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.time.LocalDateTime;
@@ -18,17 +17,20 @@ public class UrlShortenerService {
     {
         String universalSet="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
         // we will be generating 4 letter code since it can generate over 14.7 million combination
+        while(true)
+        {
         StringBuilder sb=new StringBuilder(4);
-
-
-
         for(int i=0;i<4;i++)
         {
          int random = (int)(Math.random() * universalSet.length());
          char ch=universalSet.charAt(random);
          sb.append(ch);
         }
-        return sb.toString();
+        String shortCode=sb.toString();
+        Optional<Url> urlcontainer=urlRepository.findByShortCode(shortCode);
+        if(!urlcontainer.isPresent())
+          return shortCode;
+    }
     }
     public void storeOriginalUrl(String shortCode,String originalUrl)
     {
@@ -74,7 +76,15 @@ public class UrlShortenerService {
     {
         Optional<Url> containerUrl=urlRepository.findByShortCode(shortCode);
         if(!containerUrl.isPresent())
-            throe new RuntimeException("Short Url not found");
+            throw new RuntimeException("Short Url not found");
 
+        Url actualUrl=containerUrl.get();
+        LocalDateTime currentTime=LocalDateTime.now();
+        LocalDateTime expirationTime=actualUrl.getExpiresAt();
+        if(currentTime.isAfter(expirationTime))
+            throw new RuntimeException("The ShortUrl expired ");
+
+            AnalyticsResponse analyticsResponse=new AnalyticsResponse(actualUrl.getOriginalUrl(),"http://localhost:8080/r/"+actualUrl.getShortCode(),actualUrl.getCreatedAt(),actualUrl.getExpiresAt(),actualUrl.getClickCount());
+            return analyticsResponse;
     }
 }

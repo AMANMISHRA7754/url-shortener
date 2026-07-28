@@ -20,3 +20,4 @@ fetch("/shorten",{
     result.textContent = data.shortUrl;
 });
 });
+
