@@ -1,11 +1,8 @@
 package com.example.urlshortner.controller;
-
 import org.springframework.web.bind.annotation.RestController;
-
 import com.example.urlshortner.dto.AnalyticsResponse;
 import com.example.urlshortner.dto.UrlRequest;
 import com.example.urlshortner.dto.UrlResponse;
-
 import java.net.URI;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
