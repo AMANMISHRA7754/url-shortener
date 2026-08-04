@@ -21,3 +21,9 @@ fetch("/shorten",{
 });
 });
 
+fetch(/analytics/{shortCode})
+.then(response =>
+{
+    
+}
+)
